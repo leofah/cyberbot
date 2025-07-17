@@ -111,7 +111,11 @@ class HTTPServer(Service):
         node: dict | RequestHandler = self._routes
         for idx, part in enumerate(parts):
             if isinstance(node, dict):
-                node = node[part]
+                try:
+                    node = node[part]
+                except KeyError:
+                    return Response(status=404, text=f"{part} not found")
+
             else:
                 raise Exception("inconsistent")
 
@@ -123,7 +127,7 @@ class HTTPServer(Service):
                     return Response(status=200)
                 return res
 
-        return Response(status=404, text="not found")
+        return Response(status=404, text="handler not found")
 
     async def format_url(self, subpath: str) -> str:
         return f"{self._base_url}/{subpath}"
